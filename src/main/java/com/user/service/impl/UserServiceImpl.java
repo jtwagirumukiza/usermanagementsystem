@@ -1,12 +1,11 @@
 package com.user.service.impl;
 
 
+import com.user.exception.EmailAlreadyInUseException;
 import com.user.exception.ResourceNotFoundException;
 import com.user.model.User;
 import com.user.repository.UserRepository;
 import com.user.service.UserService;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -21,11 +20,13 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    @Override
     public User createUser(User user) {
+        // Check if the email already exists
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new EmailAlreadyInUseException("The email " + user.getEmail() + " is already in use.");
+        }
         return userRepository.save(user);
     }
-
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
